@@ -17,23 +17,44 @@ export function TodoList() {
   const sortOrder = useAppSelector(state => state.todos.sortOrder);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [form] = Form.useForm();
 
   const handleAddTodo = (values: any) => {
-    const todo: TodoItem = {
-      id: Date.now(),
-      title: values.title.trim(),
-      completed: false,
-      createdAt: new Date(),
-      dueDate: values.dueDate?.toDate(),
-      priority: values.priority,
-      category: values.category,
-      description: values.description,
-      reminder: values.reminder
-    };
-    dispatch(addTodo(todo));
-    form.resetFields();
-    setIsModalVisible(false);
+    try {
+      if (editingTodo) {
+        const updatedTodo: TodoItem = {
+          ...editingTodo,
+          title: values.title.trim(),
+          dueDate: values.dueDate ? values.dueDate.toDate() : undefined,
+          priority: values.priority || 'medium',
+          category: values.category || 'other',
+          description: values.description,
+          reminder: values.reminder !== undefined ? values.reminder : false
+        };
+        dispatch(updateTodo(updatedTodo));
+      } else {
+        const todo: TodoItem = {
+          id: Date.now(),
+          title: values.title.trim(),
+          completed: false,
+          createdAt: new Date(),
+          dueDate: values.dueDate ? values.dueDate.toDate() : undefined,
+          priority: values.priority || 'medium',
+          category: values.category || 'other',
+          description: values.description || '',
+          reminder: values.reminder !== undefined ? values.reminder : false
+        };
+        dispatch(addTodo(todo));
+      }
+      setIsModalVisible(false);
+      setTimeout(() => {
+        form.resetFields();
+        setEditingTodo(null);
+      }, 100);
+    } catch (error) {
+      console.error('添加/更新任务出错:', error);
+    }
   };
 
   const handleToggleTodo = (todo: TodoItem) => {
@@ -84,7 +105,16 @@ export function TodoList() {
     <Card className="todo-list" title="待办事项管理系统">
       <Space direction="vertical" style={{ width: '100%' }} size="large">
         <Space wrap>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+            setEditingTodo(null);
+            form.resetFields();
+            form.setFieldsValue({
+              priority: 'medium',
+              category: 'other',
+              reminder: false
+            });
+            setIsModalVisible(true);
+          }}>
             新建任务
           </Button>
           <Input.Search
@@ -150,6 +180,7 @@ export function TodoList() {
                   type="text"
                   icon={<EditOutlined />}
                   onClick={() => {
+                    setEditingTodo(todo);
                     form.setFieldsValue({
                       ...todo,
                       dueDate: todo.dueDate ? dayjs(todo.dueDate) : undefined
@@ -200,7 +231,7 @@ export function TodoList() {
       </Space>
 
       <Modal
-        title="任务详情"
+        title={editingTodo ? "编辑任务" : "新建任务"}
         open={isModalVisible}
         onOk={() => form.submit()}
         onCancel={() => {
@@ -258,7 +289,8 @@ export function TodoList() {
           </Form.Item>
           <Form.Item
             name="reminder"
-            valuePropName="checked"
+            label="提醒"
+            initialValue={false}
           >
             <Radio.Group>
               <Radio value={true}>开启提醒</Radio>
