@@ -23,9 +23,7 @@ const saveState = (state: RootState) => {
 };
 
 export const store = configureStore({
-  reducer: {
-    todos: todoReducer
-  },
+  reducer: todoReducer,
   preloadedState: loadState()
 });
 
@@ -36,8 +34,9 @@ store.subscribe(() => {
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// 创建自定义hooks用于在组件中访问store
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+
+// 创建自定义hooks用于在组件中访问store
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

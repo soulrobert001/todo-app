@@ -11,10 +11,10 @@ const { TextArea } = Input;
 
 export function TodoList() {
   const dispatch = useAppDispatch();
-  const todos = useAppSelector(state => state.todos.items);
-  const filter = useAppSelector(state => state.todos.filter);
-  const sortBy = useAppSelector(state => state.todos.sortBy);
-  const sortOrder = useAppSelector(state => state.todos.sortOrder);
+  const todos = useAppSelector(state => state.items);
+  const filter = useAppSelector(state => state.filter);
+  const sortBy = useAppSelector(state => state.sortBy);
+  const sortOrder = useAppSelector(state => state.sortOrder);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
@@ -78,15 +78,15 @@ export function TodoList() {
   };
 
   const filteredTodos = todos
-    .filter(todo => {
+    .filter((todo: TodoItem) => {
       if (filter.status === 'active') return !todo.completed;
       if (filter.status === 'completed') return todo.completed;
       return true;
     })
-    .filter(todo => filter.priority === 'all' || todo.priority === filter.priority)
-    .filter(todo => filter.category === 'all' || todo.category === filter.category)
-    .filter(todo => todo.title.toLowerCase().includes(filter.search.toLowerCase()))
-    .sort((a, b) => {
+    .filter((todo: TodoItem) => filter.priority === 'all' || todo.priority === filter.priority)
+    .filter((todo: TodoItem) => filter.category === 'all' || todo.category === filter.category)
+    .filter((todo: TodoItem) => todo.title.toLowerCase().includes(filter.search.toLowerCase()))
+    .sort((a: TodoItem, b: TodoItem) => {
       let comparison = 0;
       if (sortBy === 'createdAt') {
         comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -172,7 +172,7 @@ export function TodoList() {
 
         <List
           dataSource={filteredTodos}
-          renderItem={todo => (
+          renderItem={(todo: TodoItem) => (
             <List.Item
               key={todo.id}
               actions={[

@@ -1,4 +1,4 @@
-export type TodoPriority = 'low' | 'medium' | 'high';
+export type TodoPriority = 'high' | 'medium' | 'low';
 export type TodoCategory = 'work' | 'personal' | 'shopping' | 'study' | 'other';
 
 export interface TodoItem {
@@ -9,6 +9,6 @@ export interface TodoItem {
   dueDate?: Date;
   priority: TodoPriority;
   category: TodoCategory;
-  description?: string;
-  reminder?: boolean;
+  description: string;
+  reminder: boolean;
 }
