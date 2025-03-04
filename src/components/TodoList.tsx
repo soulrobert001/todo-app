@@ -9,18 +9,30 @@ import dayjs from 'dayjs';
 const { Option } = Select;
 const { TextArea } = Input;
 
+interface TodoFormValues {
+  title: string;
+  dueDate?: dayjs.Dayjs;
+  priority: 'high' | 'medium' | 'low';
+  category: 'work' | 'personal' | 'shopping' | 'study' | 'other';
+  description?: string;
+  reminder?: boolean;
+}
+
+type FilterValue = string | boolean | undefined;
+type SortByValue = 'createdAt' | 'dueDate' | 'priority';
+
 export function TodoList() {
   const dispatch = useAppDispatch();
-  const todos = useAppSelector(state => state.items);
-  const filter = useAppSelector(state => state.filter);
-  const sortBy = useAppSelector(state => state.sortBy);
-  const sortOrder = useAppSelector(state => state.sortOrder);
+  const todos = useAppSelector(state => state.todos.items);
+  const filter = useAppSelector(state => state.todos.filter);
+  const sortBy = useAppSelector(state => state.todos.sortBy);
+  const sortOrder = useAppSelector(state => state.todos.sortOrder);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [form] = Form.useForm();
 
-  const handleAddTodo = (values: any) => {
+  const handleAddTodo = (values: TodoFormValues) => {
     try {
       if (editingTodo) {
         const updatedTodo: TodoItem = {
@@ -29,7 +41,7 @@ export function TodoList() {
           dueDate: values.dueDate ? values.dueDate.toDate() : undefined,
           priority: values.priority || 'medium',
           category: values.category || 'other',
-          description: values.description,
+          description: values.description || '',
           reminder: values.reminder !== undefined ? values.reminder : false
         };
         dispatch(updateTodo(updatedTodo));
@@ -65,11 +77,11 @@ export function TodoList() {
     dispatch(deleteTodo(id));
   };
 
-  const handleFilterChange = (type: string, value: any) => {
+  const handleFilterChange = (type: string, value: FilterValue) => {
     dispatch(setFilter({ [type]: value }));
   };
 
-  const handleSortChange = (value: any) => {
+  const handleSortChange = (value: SortByValue) => {
     dispatch(setSortBy(value));
   };
 
